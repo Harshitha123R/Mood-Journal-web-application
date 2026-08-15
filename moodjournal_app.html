@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d0d14;--surface:#161622;--surface2:#1e1e2e;--surface3:#252538;
+  --accent:#c084fc;--accent2:#818cf8;--accent3:#34d399;
+  --text:#f1f0ff;--muted:#8b8ba8;--border:rgba(255,255,255,0.08);
+  --happy:#fbbf24;--sad:#60a5fa;--angry:#f87171;--anxious:#a78bfa;--calm:#34d399;--tired:#94a3b8;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ---- BACKGROUND ---- */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) var(--delay,0s) infinite alternate}
+@keyframes twinkle{0%{opacity:.1;transform:scale(1)}100%{opacity:.9;transform:scale(1.4)}}
+
+/* ---- LAYOUT ---- */
+.app{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:1.5rem 1rem}
+
+/* ---- AUTH ---- */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:400px;text-align:center}
+.auth-logo{font-family:'Playfair Display',serif;font-size:2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.25rem}
+.auth-sub{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+.auth-tabs{display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:1.5rem}
+.auth-tab{flex:1;padding:.5rem;border:none;background:none;color:var(--muted);cursor:pointer;border-radius:9px;font-size:.85rem;transition:.2s}
+.auth-tab.active{background:var(--surface3);color:var(--text)}
+.field{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;color:var(--text);font-size:.9rem;margin-bottom:.75rem;outline:none;transition:.2s}
+.field:focus{border-color:var(--accent)}
+.btn-main{width:100%;padding:.8rem;border:none;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:.95rem;font-weight:500;cursor:pointer;transition:.15s}
+.btn-main:hover{opacity:.9;transform:translateY(-1px)}
+.btn-main:active{transform:scale(.98)}
+
+/* ---- HEADER ---- */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.logo{font-family:'Playfair Display',serif;font-size:1.4rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.user-pill{display:flex;align-items:center;gap:.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:.4rem .75rem .4rem .4rem;cursor:pointer;font-size:.8rem}
+.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600}
+.logout-btn{background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;margin-left:.25rem}
+.logout-btn:hover{color:var(--text)}
+
+/* ---- NAV ---- */
+.nav{display:flex;gap:.5rem;margin-bottom:2rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:6px}
+.nav-btn{flex:1;padding:.55rem .5rem;border:none;background:none;color:var(--muted);cursor:pointer;border-radius:12px;font-size:.8rem;transition:.2s;display:flex;align-items:center;justify-content:center;gap:.35rem}
+.nav-btn.active{background:var(--surface3);color:var(--text)}
+
+/* ---- MOOD PICKER ---- */
+.section-title{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:1rem;color:var(--text)}
+.section-title span{color:var(--muted);font-size:.85rem;font-family:'DM Sans',sans-serif;font-weight:300}
+.mood-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem;margin-bottom:1.5rem}
+.mood-btn{padding:.75rem .25rem;border:2px solid var(--border);border-radius:14px;background:var(--surface);cursor:pointer;text-align:center;transition:.2s;display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.mood-btn:hover{border-color:var(--accent);transform:translateY(-2px)}
+.mood-btn.active{border-color:var(--accent);background:var(--surface2)}
+.mood-emoji{font-size:1.5rem}
+.mood-label{font-size:.65rem;color:var(--muted)}
+
+/* ---- WRITE AREA ---- */
+.write-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:1.5rem;margin-bottom:1.5rem}
+.entry-title{width:100%;background:none;border:none;color:var(--text);font-size:1rem;font-weight:500;margin-bottom:.75rem;outline:none}
+.entry-title::placeholder{color:var(--muted)}
+.divider{height:1px;background:var(--border);margin-bottom:.75rem}
+.entry-body{width:100%;background:none;border:none;color:var(--text);font-size:.9rem;line-height:1.7;outline:none;resize:none;min-height:120px}
+.entry-body::placeholder{color:var(--muted)}
+.write-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)}
+.mood-tag{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--muted)}
+.save-btn{padding:.5rem 1.25rem;border:none;border-radius:100px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:.82rem;cursor:pointer;transition:.15s}
+.save-btn:hover{opacity:.9}
+.save-btn:active{transform:scale(.97)}
+
+/* ---- MUSIC CARD ---- */
+.music-card{background:linear-gradient(135deg,rgba(192,132,252,0.1),rgba(129,140,248,0.1));border:1px solid rgba(192,132,252,0.2);border-radius:20px;padding:1.5rem;margin-bottom:1.5rem}
+.music-header{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;font-size:.85rem;color:var(--accent);font-weight:500}
+.music-list{display:flex;flex-direction:column;gap:.75rem}
+.music-item{display:flex;align-items:center;gap:.85rem;padding:.75rem;background:rgba(255,255,255,0.04);border-radius:12px;cursor:pointer;transition:.15s}
+.music-item:hover{background:rgba(255,255,255,0.08)}
+.music-thumb{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.music-info{flex:1;min-width:0}
+.music-name{font-size:.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.music-artist{font-size:.75rem;color:var(--muted)}
+.play-btn{width:28px;height:28px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:#fff;flex-shrink:0;transition:.15s}
+.play-btn:hover{transform:scale(1.1)}
+
+/* ---- HISTORY ---- */
+.entry-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem;margin-bottom:1rem;transition:.15s;cursor:pointer}
+.entry-card:hover{border-color:rgba(255,255,255,0.15);transform:translateY(-1px)}
+.entry-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.entry-date{font-size:.75rem;color:var(--muted)}
+.entry-mood-badge{display:flex;align-items:center;gap:.3rem;font-size:.75rem;background:var(--surface2);border-radius:100px;padding:.25rem .6rem}
+.entry-excerpt{font-size:.85rem;color:var(--muted);line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---- ANALYTICS ---- */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem}
+.stat-label{font-size:.75rem;color:var(--muted);margin-bottom:.35rem}
+.stat-value{font-size:1.6rem;font-weight:500}
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:1.5rem}
+.chart-title{font-size:.85rem;color:var(--muted);margin-bottom:1rem}
+.chart-bars{display:flex;align-items:flex-end;gap:.5rem;height:100px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.bar{width:100%;border-radius:6px 6px 0 0;transition:.5s;min-height:4px}
+.bar-day{font-size:.65rem;color:var(--muted)}
+.bar-emoji{font-size:.8rem}
+.quote-card{background:linear-gradient(135deg,rgba(52,211,153,0.1),rgba(129,140,248,0.1));border:1px solid rgba(52,211,153,0.2);border-radius:20px;padding:1.5rem;margin-top:1rem;text-align:center}
+.quote-text{font-family:'Playfair Display',serif;font-style:italic;font-size:1rem;line-height:1.6;margin-bottom:.5rem}
+.quote-src{font-size:.75rem;color:var(--muted)}
+
+/* ---- TOAST ---- */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface3);border:1px solid var(--border);border-radius:100px;padding:.6rem 1.25rem;font-size:.82rem;transition:.35s;z-index:100;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ---- THEME OVERLAY ---- */
+.theme-happy{--bg:#0f0d00;--surface:#1a1700;--surface2:#211e00;--accent:#fbbf24;--accent2:#f59e0b}
+.theme-sad{--bg:#000d1a;--surface:#001222;--surface2:#001a2e;--accent:#60a5fa;--accent2:#3b82f6}
+.theme-angry{--bg:#1a0000;--surface:#220000;--surface2:#2e0000;--accent:#f87171;--accent2:#ef4444}
+.theme-anxious{--bg:#0d0014;--surface:#130019;--surface2:#1a0022;--accent:#a78bfa;--accent2:#8b5cf6}
+.theme-calm{--bg:#001a0d;--surface:#002211;--surface2:#003018;--accent:#34d399;--accent2:#10b981}
+.theme-tired{--bg:#0d0d10;--surface:#111116;--surface2:#16161e;--accent:#94a3b8;--accent2:#64748b}
+
+@media(max-width:500px){
+  .mood-grid{grid-template-columns:repeat(3,1fr)}
+  .analytics-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="toast" id="toast"></div>
+
+<div id="root"></div>
+
+<script>
+const moods = [
+  {id:'happy',emoji:'😊',label:'Happy',color:'#fbbf24',music:[
+    {name:'Happy',artist:'Pharrell Williams',bg:'#fbbf24',icon:'🎵'},
+    {name:'Good as Hell',artist:'Lizzo',bg:'#f59e0b',icon:'🎶'},
+    {name:'Levitating',artist:'Dua Lipa',bg:'#fcd34d',icon:'🎵'}
+  ],quote:'Happiness is not something ready-made. It comes from your own actions.',src:'Dalai Lama'},
+  {id:'sad',emoji:'😢',label:'Sad',color:'#60a5fa',music:[
+    {name:'Skinny Love',artist:'Bon Iver',bg:'#60a5fa',icon:'🎵'},
+    {name:'The Night We Met',artist:'Lord Huron',bg:'#3b82f6',icon:'🎶'},
+    {name:'Liability',artist:'Lorde',bg:'#93c5fd',icon:'🎵'}
+  ],quote:'Even the darkest night will end and the sun will rise.',src:'Victor Hugo'},
+  {id:'angry',emoji:'😡',label:'Angry',color:'#f87171',music:[
+    {name:'Break Stuff',artist:'Limp Bizkit',bg:'#f87171',icon:'🎸'},
+    {name:'Killing Me Softly',artist:'Fugees',bg:'#ef4444',icon:'🎵'},
+    {name:'Numb',artist:'Linkin Park',bg:'#fca5a5',icon:'🎸'}
+  ],quote:'For every minute you remain angry, you give up sixty seconds of peace.',src:'Emerson'},
+  {id:'anxious',emoji:'😰',label:'Anxious',color:'#a78bfa',music:[
+    {name:'Breathe Me',artist:'Sia',bg:'#a78bfa',icon:'🎵'},
+    {name:'Fix You',artist:'Coldplay',bg:'#8b5cf6',icon:'🎵'},
+    {name:'Weightless',artist:'Marconi Union',bg:'#c4b5fd',icon:'🎶'}
+  ],quote:'You don\'t have to control your thoughts. You just have to stop letting them control you.',src:'Dan Millman'},
+  {id:'calm',emoji:'😌',label:'Calm',color:'#34d399',music:[
+    {name:'Clair de Lune',artist:'Debussy',bg:'#34d399',icon:'🎹'},
+    {name:'River Flows In You',artist:'Yiruma',bg:'#10b981',icon:'🎹'},
+    {name:'Experience',artist:'Ludovico Einaudi',bg:'#6ee7b7',icon:'🎹'}
+  ],quote:'Peace is not the absence of conflict, but the ability to cope with it.',src:'Unknown'},
+  {id:'tired',emoji:'😴',label:'Tired',color:'#94a3b8',music:[
+    {name:'Sleeping At Last',artist:'Saturn',bg:'#94a3b8',icon:'🎵'},
+    {name:'The Sound of Silence',artist:'Simon & Garfunkel',bg:'#64748b',icon:'🎵'},
+    {name:'All I Want',artist:'Kodaline',bg:'#cbd5e1',icon:'🎶'}
+  ],quote:'Rest when you\'re weary. Refresh and renew yourself, your body, your mind.',src:'Ralph Marston'},
+];
+
+let state = {
+  screen:'auth',
+  authMode:'login',
+  user:null,
+  currentMood:null,
+  entryTitle:'',
+  entryBody:'',
+  entries:[
+    {id:1,mood:'happy',title:'Great day at the park!',body:'Spent the morning walking and feeling the sun. Life is good.',date:'Apr 22, 2026'},
+    {id:2,mood:'anxious',title:'Exam stress kicking in',body:'So many things to revise. Trying to stay calm and take it one chapter at a time.',date:'Apr 21, 2026'},
+    {id:3,mood:'calm',title:'Evening meditation',body:'Did 20 minutes of breathwork. Feeling centered and grounded.',date:'Apr 20, 2026'},
+  ],
+  nav:'write',
+  playingIdx:null,
+};
+
+function getMood(id){return moods.find(m=>m.id===id)}
+
+function setTheme(moodId){
+  document.body.className = moodId ? 'theme-'+moodId : '';
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function render(){
+  document.getElementById('root').innerHTML = state.screen==='auth' ? renderAuth() : renderApp();
+  attachEvents();
+  generateStars();
+}
+
+function generateStars(){
+  const c=document.getElementById('stars');
+  if(c.children.length>0) return;
+  for(let i=0;i<80;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;opacity:${0.2+Math.random()*0.6}`;
+    c.appendChild(s);
+  }
+}
+
+function renderAuth(){
+  return `<div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">✦ MoodJournal</div>
+      <div class="auth-sub">Your mood-aware digital sanctuary</div>
+      <div class="auth-tabs">
+        <button class="auth-tab ${state.authMode==='login'?'active':''}" onclick="switchAuth('login')">Sign In</button>
+        <button class="auth-tab ${state.authMode==='signup'?'active':''}" onclick="switchAuth('signup')">Sign Up</button>
+      </div>
+      ${state.authMode==='signup'?`<input class="field" id="nameField" placeholder="Your name" />`:``}
+      <input class="field" id="emailField" placeholder="Email address" type="email" />
+      <input class="field" id="passField" placeholder="Password" type="password" />
+      <button class="btn-main" onclick="doAuth()">${state.authMode==='login'?'Sign In':'Create Account'}</button>
+      <p style="font-size:.75rem;color:var(--muted);margin-top:1rem">${state.authMode==='login'?'Demo: any email + password':'All fields required'}</p>
+    </div>
+  </div>`;
+}
+
+function renderApp(){
+  setTheme(state.currentMood);
+  const mood = state.currentMood ? getMood(state.currentMood) : null;
+  return `
+  <div class="app">
+    <div class="header">
+      <div class="logo">✦ MoodJournal</div>
+      <div class="user-pill">
+        <div class="avatar">${state.user[0].toUpperCase()}</div>
+        <span style="font-size:.8rem">${state.user}</span>
+        <button class="logout-btn" onclick="logout()">✕</button>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="nav-btn ${state.nav==='write'?'active':''}" onclick="setNav('write')">✍️ <span>Write</span></button>
+      <button class="nav-btn ${state.nav==='history'?'active':''}" onclick="setNav('history')">📖 <span>History</span></button>
+      <button class="nav-btn ${state.nav==='analytics'?'active':''}" onclick="setNav('analytics')">📊 <span>Analytics</span></button>
+    </div>
+    ${state.nav==='write' ? renderWrite(mood) : state.nav==='history' ? renderHistory() : renderAnalytics()}
+  </div>`;
+}
+
+function renderWrite(mood){
+  return `
+  <div class="section-title">How are you feeling? <span>tap a mood</span></div>
+  <div class="mood-grid">
+    ${moods.map(m=>`
+      <button class="mood-btn ${state.currentMood===m.id?'active':''}" onclick="selectMood('${m.id}')">
+        <span class="mood-emoji">${m.emoji}</span>
+        <span class="mood-label">${m.label}</span>
+      </button>`).join('')}
+  </div>
+
+  <div class="write-card">
+    <input class="entry-title" id="titleInput" placeholder="Title your entry..." value="${escHtml(state.entryTitle)}" oninput="state.entryTitle=this.value"/>
+    <div class="divider"></div>
+    <textarea class="entry-body" id="bodyInput" placeholder="What's on your mind today? Write freely..." oninput="state.entryBody=this.value">${escHtml(state.entryBody)}</textarea>
+    <div class="write-footer">
+      <div class="mood-tag">
+        ${mood ? `${mood.emoji} ${mood.label}` : '<span style="color:var(--muted)">No mood set</span>'}
+      </div>
+      <button class="save-btn" onclick="saveEntry()">Save Entry ✓</button>
+    </div>
+  </div>
+
+  ${mood ? renderMusic(mood) : ''}
+  ${mood ? renderQuote(mood) : ''}
+  `;
+}
+
+function renderMusic(mood){
+  return `
+  <div class="music-card">
+    <div class="music-header">🎧 Recommended for your ${mood.label} mood</div>
+    <div class="music-list">
+      ${mood.music.map((t,i)=>`
+        <div class="music-item" onclick="togglePlay(${i})">
+          <div class="music-thumb" style="background:${t.bg}22">${t.icon}</div>
+          <div class="music-info">
+            <div class="music-name">${t.name}</div>
+            <div class="music-artist">${t.artist}</div>
+          </div>
+          <button class="play-btn" style="background:${t.bg}">${state.playingIdx===i?'⏸':'▶'}</button>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderQuote(mood){
+  return `<div class="quote-card">
+    <div class="quote-text">"${mood.quote}"</div>
+    <div class="quote-src">— ${mood.src}</div>
+  </div>`;
+}
+
+function renderHistory(){
+  if(!state.entries.length) return `<div style="text-align:center;color:var(--muted);padding:3rem 0">No entries yet. Start writing!</div>`;
+  return `
+  <div class="section-title">Your journal <span>${state.entries.length} entries</span></div>
+  ${state.entries.map(e=>{
+    const m=getMood(e.mood);
+    return `<div class="entry-card">
+      <div class="entry-meta">
+        <span class="entry-date">${e.date}</span>
+        ${m?`<span class="entry-mood-badge">${m.emoji} ${m.label}</span>`:''}
+      </div>
+      <div style="font-size:.9rem;font-weight:500;margin-bottom:.25rem">${escHtml(e.title)}</div>
+      <div class="entry-excerpt">${escHtml(e.body)}</div>
+    </div>`;
+  }).join('')}`;
+}
+
+function renderAnalytics(){
+  const total=state.entries.length;
+  const moodCounts={};
+  state.entries.forEach(e=>moodCounts[e.mood]=(moodCounts[e.mood]||0)+1);
+  const topMoodId=Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0]?.[0];
+  const topMood=topMoodId?getMood(topMoodId):null;
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const heights=[60,80,40,100,30,70,50];
+  const barMoods=['calm','happy','sad','happy','tired','calm','anxious'];
+  return `
+  <div class="section-title">Your mood analytics</div>
+  <div class="analytics-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Entries</div>
+      <div class="stat-value" style="color:var(--accent)">${total}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Top Mood</div>
+      <div class="stat-value">${topMood?topMood.emoji:'—'} <span style="font-size:1rem;color:var(--muted)">${topMood?topMood.label:'none'}</span></div>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-title">Weekly mood tracker</div>
+    <div class="chart-bars">
+      ${days.map((d,i)=>{
+        const m=getMood(barMoods[i]);
+        return `<div class="bar-col">
+          <div class="bar-emoji">${m.emoji}</div>
+          <div class="bar" style="height:${heights[i]}%;background:${m.color}55;border:1px solid ${m.color}88"></div>
+          <div class="bar-day">${d}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+  <div class="quote-card" style="margin-top:1rem">
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:.5rem">Your mood pattern this week</div>
+    <div style="font-size:.95rem">You feel most ${topMood?topMood.label:'balanced'} ${topMood?topMood.emoji:'✨'}. Keep journaling to unlock deeper insights.</div>
+  </div>`;
+}
+
+function escHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function attachEvents(){}
+
+function switchAuth(mode){state.authMode=mode;render()}
+
+function doAuth(){
+  const email=document.getElementById('emailField')?.value?.trim();
+  if(!email){showToast('Please enter an email');return}
+  const name=document.getElementById('nameField')?.value?.trim()||email.split('@')[0];
+  state.user=state.authMode==='login'?email.split('@')[0]:name;
+  state.screen='app'; render(); showToast('Welcome back, '+state.user+'! ✨');
+}
+
+function logout(){state.screen='auth';state.user=null;state.currentMood=null;setTheme(null);render()}
+
+function setNav(n){state.nav=n;state.playingIdx=null;render()}
+
+function selectMood(id){
+  state.currentMood=state.currentMood===id?null:id;
+  state.playingIdx=null;
+  render();
+  if(state.currentMood) showToast('Mood set: '+getMood(id).emoji+' '+getMood(id).label);
+}
+
+function saveEntry(){
+  if(!state.entryBody.trim()){showToast('Write something first!');return}
+  const now=new Date();
+  const date=now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  state.entries.unshift({
+    id:Date.now(),
+    mood:state.currentMood||'calm',
+    title:state.entryTitle||'Untitled Entry',
+    body:state.entryBody,
+    date
+  });
+  state.entryTitle=''; state.entryBody='';
+  render(); showToast('Entry saved! 🌸');
+}
+
+function togglePlay(i){
+  state.playingIdx=state.playingIdx===i?null:i;
+  render();
+  if(state.playingIdx!==null){
+    const m=getMood(state.currentMood);
+    showToast('Now playing: '+m.music[i].name+' ♪');
+  }
+}
+
+render();
+</script>
+</body>
+</html>
